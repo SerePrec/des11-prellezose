@@ -1,9 +1,9 @@
 // Valida que sea un id numérico
 const validateId = (req, res, next) => {
   const id = req.params.id;
-  if (isNaN(id)) res.status(400).json({ error: "El parámetro no es válido" });
+  if (!((typeof id == "string" || typeof id == "number") && /^\w+$/.test(id)))
+    res.status(400).json({ error: "El parámetro no es válido" });
   else {
-    req.params.id = parseInt(id);
     next();
   }
 };

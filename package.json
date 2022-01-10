@@ -12,13 +12,12 @@
   "author": "SEP",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^10.0.0",
     "ejs": "^3.1.6",
     "express": "^4.17.1",
     "faker": "^5.5.3",
-    "knex": "^0.95.14",
-    "mysql": "^2.18.1",
-    "socket.io": "^4.4.0",
-    "sqlite3": "^5.0.2"
+    "mongoose": "^6.1.5",
+    "socket.io": "^4.4.0"
   },
   "devDependencies": {
     "eslint": "^8.6.0",
