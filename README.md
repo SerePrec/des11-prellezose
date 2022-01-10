@@ -53,6 +53,30 @@ El nuevo formato de mensaje será:
 Luego de clonar o descargar el repositorio e instalar todas las dependencias con `npm install`, existen dos comandos para levantar el proyecto.
 Para levantarlo en modo de desarrollo junto a nodemon, utilizar `npm run dev`. De lo contrario, para ejecutarlo en "modo producción", utilizar `npm start`
 
-### Deploy en Heroku (Transitorio):
+### Vistas
+
+Hay 2 vistas servidas desde el servidor que proveen una manera amena de probar el desafío.
+Estas vistas se encuentran en las rutas:
+
+- **/** : es la vista principal en donde se encuentra el formulario de carga de productos y el centro de mensajes (chat). Utiliza **websockets**.
+
+- **/productos-mock** : es donde se muestra en una tabla el mock de productos devueltos por la llamada a la API en la ruta de test.
+
+### API
+
+Consiste en las siguientes rutas:
+
+#### Router /api/productos
+
+| Método | Endpoint                | Descripción                                                        |
+| ------ | ----------------------- | ------------------------------------------------------------------ |
+| GET    | **/api/productos/**     | Me permite listar todos los productos disponibles                  |
+| POST   | **/api/productos/**     | Para incorporar productos al listado                               |
+| GET    | **/api/productos/:id**  | Me permite listar un producto por su id                            |
+| PUT    | **/api/productos/:id**  | Actualiza un producto por su id. Admite actualizaciones parciales  |
+| DELETE | **/api/productos/:id**  | Borra un producto por su id                                        |
+| GET    | **/api/productos-test** | Devuelve un listado de 5 productos mock generados con **Faker.js** |
+
+### Deploy en Heroku (Temporal):
 
 https://des11-prellezose.herokuapp.com/
