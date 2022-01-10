@@ -10,16 +10,24 @@ const $btnLog = document.getElementById("btn-log");
 const $btnSend = document.getElementById("btn-send");
 const $messagesWrapper = document.getElementById("messages-wrapper");
 const $messageErrors = document.getElementById("messageErrors");
+const $compression = document.getElementById("compression");
+let template = null;
 let user = null;
+
+// eslint-disable-next-line no-undef
+const { schema, denormalize } = normalizr;
 // eslint-disable-next-line no-undef
 const socket = io();
 
 // Renderiza la tabla de productos utilizando template de hbs
 async function renderTable(file, data) {
-  let response = await fetch(file);
-  const templateFile = await response.text();
-  // eslint-disable-next-line no-undef
-  const template = Handlebars.compile(templateFile);
+  // Cargo plantilla solo 1 vez por fetch
+  if (template === null) {
+    let response = await fetch(file);
+    const templateFile = await response.text();
+    // eslint-disable-next-line no-undef
+    template = Handlebars.compile(templateFile);
+  }
   const html = template(data);
   return html;
 }
@@ -40,7 +48,7 @@ function renderMessages(data) {
   let prevDate;
   messages.forEach(message => {
     const messageDate = new Date(message.timestamp).toLocaleDateString();
-    const color = stringToColour(message.user);
+    const color = stringToColour(message.author.email);
     if (prevDate !== messageDate) {
       prevDate = messageDate;
       html += `
@@ -51,9 +59,11 @@ function renderMessages(data) {
     }
     html += `
       <div class="message-box">
-        <div class="color" style="background-color:${color};"></div>
+        <div class="color" style="background-color:${color};">
+          <img src="${message.author.avatar}" alt="user avatar">
+        </div>
         <div class="message">
-          <b style="color:${color};">${message.user}</b>
+          <b style="color:${color};">${message.author.email}</b>
           [ <i>${new Date(message.timestamp).toLocaleTimeString()}</i> ] :
           <span>${message.text}</span>
         </div>
@@ -92,6 +102,23 @@ function stringToColour(string) {
   return colors[hash];
 }
 
+function changeDisabledUserForm(boolean) {
+  for (let i = 0; i < $userForm.length; i++) {
+    if (i === 1) continue;
+    $userForm[i].disabled = boolean;
+  }
+}
+
+// DENORMALIZACIÓN DE MENSAJES
+const userSchema = new schema.Entity("users", {}, { idAttribute: "email" });
+const messageSchema = new schema.Entity("messages", {
+  author: userSchema
+});
+// Esquema para normalizar un array de esquemas (mensajes)
+// No es necesario generar un objeto con id arbitrario para contener
+// este array como una propiedad
+const messageListSchema = [messageSchema];
+
 // Escucha evento del envío del listado de productos
 socket.on("allProducts", async products => {
   $productsTable.innerHTML = await renderTable("/templates/table.hbs", {
@@ -117,10 +144,22 @@ socket.on("usersCount", async usersQty => {
 
 // Escucha evento del envío de listado de mensajes
 socket.on("allMessages", async messages => {
+  const denormalizedMessages = denormalize(
+    messages.result,
+    messageListSchema,
+    messages.entities
+  );
+  const normalizedMsgSize = JSON.stringify(messages).length;
+  const denormalizedMsgSize = JSON.stringify(denormalizedMessages).length;
+  const compression = (
+    (1 - normalizedMsgSize / denormalizedMsgSize) *
+    100
+  ).toFixed(1);
   $messagesWrapper.innerHTML = renderMessages({
-    messages
+    messages: denormalizedMessages
   });
   $messagesWrapper.scrollTo(0, $messagesWrapper.scrollHeight);
+  $compression.innerText = `Factor de Compresión: ${compression}%`;
 });
 
 // Escucha evento de errores personalizados asociados a mensajes
@@ -150,7 +189,7 @@ $userForm.addEventListener("submit", e => {
   e.preventDefault();
   if (user) {
     user = null;
-    $inputEmail.disabled = false;
+    changeDisabledUserForm(false);
     $inputEmail.classList.remove("logged");
     $btnLog.innerText = "Login";
     $btnLog.classList.remove("logged");
@@ -162,7 +201,7 @@ $userForm.addEventListener("submit", e => {
   const inputValue = $inputEmail.value;
   if (/^([a-z0-9_.-]+)@([a-z0-9_.-]+)\.([a-z.]{2,6})$/.test(inputValue)) {
     user = inputValue;
-    $inputEmail.disabled = true;
+    changeDisabledUserForm(true);
     $inputEmail.classList.add("logged");
     $btnLog.innerText = "Logout";
     $btnLog.classList.add("logged");
@@ -183,7 +222,18 @@ $messageForm.addEventListener("submit", e => {
   const inputValue = $inputMessage.value;
   if (user && inputValue.trim()) {
     const text = inputValue;
-    socket.emit("newMessage", { user, text });
+    const message = {
+      author: {
+        email: user,
+        firstName: $userForm["firstName"].value,
+        lastName: $userForm["lastName"].value,
+        age: $userForm["age"].value,
+        alias: $userForm["alias"].value,
+        avatar: $userForm["avatar"].value
+      },
+      text
+    };
+    socket.emit("newMessage", message);
     $messageForm.reset();
     $inputMessage.focus();
     $btnSend.disabled = !$inputMessage.value.trim();

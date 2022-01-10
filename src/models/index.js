@@ -4,7 +4,14 @@ import ContenedorMongoDB from "./ContenedorMongoDB.js";
 const { Schema } = mongoose;
 
 const messageSchema = new Schema({
-  user: { type: String, required: true },
+  author: {
+    email: { type: String, required: true },
+    firstName: { type: String, required: true },
+    lastName: { type: String, required: true },
+    age: { type: Number, required: true },
+    alias: { type: String, required: true },
+    avatar: { type: String, required: true }
+  },
   text: { type: String, required: true },
   timestamp: { type: Date, default: Date.now }
 });
@@ -12,7 +19,7 @@ const messageSchema = new Schema({
 const productSchema = new Schema({
   title: { type: String, required: true },
   price: { type: Number, required: true, min: 0 },
-  thumbnail: { type: String }
+  thumbnail: { type: String, required: true }
 });
 
 const productsModel = new ContenedorMongoDB("Product", productSchema);

@@ -100,8 +100,14 @@ div.bg-yellow {
 
 #userForm {
   width: 95%;
-  max-width: 28rem;
+  max-width: 40rem;
   margin: auto;
+}
+#userForm .input-group {
+  max-width: 28rem;
+}
+#userForm input:disabled:not(.logged) {
+  opacity: 0.5;
 }
 #inputEmail.logged {
   color: rgb(50, 50, 233);
@@ -125,13 +131,14 @@ div.bg-yellow {
   background-color: transparent;
 }
 #messages-wrapper {
+  position: relative;
   display: flex;
   flex-direction: column;
   height: 50vh;
   overflow-y: auto;
   scroll-behavior: smooth;
   background-color: #343c42;
-  border-radius: 0.5rem;
+  border-radius: 0 0 0.5rem 0.5rem;
   color: #8f8f8f;
 }
 #messages-wrapper .message-box {
@@ -141,11 +148,20 @@ div.bg-yellow {
   margin: 0.25rem 1rem 0.25rem 1rem;
 }
 #messages-wrapper .message-box .color {
-  width: 0.5rem;
+  width: 3.5rem;
   height: 100%;
   flex-grow: 0;
   flex-shrink: 0;
   border-bottom-left-radius: 0.75rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+#messages-wrapper .message-box .color img {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  object-fit: cover;
 }
 #messages-wrapper .message {
   text-align: left;
@@ -172,9 +188,19 @@ div.bg-yellow {
   border-radius: 0.5rem;
   margin: 0.5rem auto;
 }
+#compression {
+  background-color: #198754;
+  border-radius: 0.5rem 0.5rem 0 0;
+}
 
 @media (max-width: 576px) {
   .chatZone {
     padding: 2rem 0.5rem 0.25rem 0.5rem;
+  }
+  .table thead th:first-child {
+    display: none;
+  }
+  .table tbody td:first-child {
+    display: none;
   }
 }

@@ -1,5 +1,5 @@
 import { productsModel, messagesModel } from "./models/index.js";
-import { escapeHtml } from "./utils/messageTools.js";
+import { escapeHtml, normalizeMessages } from "./utils/messageTools.js";
 
 //Configuración de sockets
 export default io => {
@@ -25,7 +25,8 @@ export default io => {
     //Obtiene listado de mensajes con cada conexión entrante y lo envía al socket
     try {
       const messages = await messagesModel.getAll();
-      socket.emit("allMessages", messages);
+      const normalizedMessages = normalizeMessages(messages);
+      socket.emit("allMessages", normalizedMessages);
     } catch (error) {
       console.log(error);
       socket.emit("messageErrors", "No se pudo recuperar archivo de mensajes");
@@ -49,15 +50,15 @@ export default io => {
     //Escucha el evento de un nuevo mensaje enviado
     socket.on("newMessage", async message => {
       try {
-        if (!message.user || !message.text.trim())
+        if (!message.author || !message.text.trim())
           throw new Error("Mensaje inválido");
 
         message.text = escapeHtml(message.text);
         const newMessage = { ...message };
-
         await messagesModel.save(newMessage);
         const messages = await messagesModel.getAll();
-        io.sockets.emit("allMessages", messages);
+        const normalizedMessages = normalizeMessages(messages);
+        io.sockets.emit("allMessages", normalizedMessages);
       } catch (error) {
         console.log(error);
         socket.emit("messageErrors", "Error al procesar el mensaje enviado");
