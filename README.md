@@ -48,6 +48,10 @@ El nuevo formato de mensaje será:
 > https://cdn.jsdelivr.net/npm/normalizr@3.6.1/dist/normalizr.browser.min.js  
 > Así podremos utilizar los mismos métodos de normalizr que en el backend. Por ejemplo: new normalizr.schema.Entity , normalizr.denormalize(...,...,...)
 
+### Deploy en Heroku (temporal):
+
+https://des11-prellezose.herokuapp.com/
+
 ### Ejecución
 
 Luego de clonar o descargar el repositorio e instalar todas las dependencias con `npm install`, existen dos comandos para levantar el proyecto.
@@ -77,6 +81,4 @@ Consiste en las siguientes rutas:
 | DELETE | **/api/productos/:id**  | Borra un producto por su id                                        |
 | GET    | **/api/productos-test** | Devuelve un listado de 5 productos mock generados con **Faker.js** |
 
-### Deploy en Heroku (Temporal):
 
-https://des11-prellezose.herokuapp.com/
